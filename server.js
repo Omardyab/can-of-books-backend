@@ -100,7 +100,7 @@ function seedUserCollection() {
 seedUserCollection();
 
 app.get('/book', getBooks);
-// /books?email=vzulof@gmail.com
+// /book?email=vzulof@gmail.com
 function getBooks(req, res) 
 {   let requestedEmail = req.query.email; // email is the parameter you have after localhost in which you check
     console.log(requestedEmail);
