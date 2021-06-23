@@ -93,7 +93,7 @@ function seedUserCollection() {
     Omar.save();
     Victoria.save();
 }
-// seedUserCollection();
+seedUserCollection();
 
 app.get('/book', getBooks);
 // /book?email=vzulof@gmail.com
@@ -103,49 +103,64 @@ function getBooks(req, res) {
 
     userSchemaModal.find({ Email: requestedEmail }, //Email here is your object parameter which is different than you local host parameter 
         function (err, bookData) {
-            if (err) {res.send(500); 
-                console.log('Oooops, something is wrong'); }
+            if (err) {
+                res.send(500);
+                console.log('Oooops, something is wrong');
+            }
             else { res.status(200).send(bookData[0].Books); }// Books is your object parameter that you want to render in front end (you dont need your email).  
-            console.log(bookData[0].Books);//you will see this in terminal after listening to your port
-        }
-    );
+            //you will see this in terminal after listening to your port
+        });
+
+
 
 }
 app.post('/addBook', addBookHandler);
 app.delete('/books/:index',deleteBook);
+// app.put('/updateBook/:index',updateBook);
 
+// function updateBook (req,res){
+//     console.log(req.body);
+//     console.log('this is updating !!');
+//     const { bookName, BookDes, bookState, bookImg } = req.body;
+
+// }
 function addBookHandler(req, res) {
     console.log(req.body);
     console.log('this is working !!');
-    const { bookName, BookDes, bookState, bookImg } = req.body;
-    // email=req.body.Email;
-    // console.log(email)
-    userSchemaModal.find({ Email}, (err, bookData)=> {
-        if (err) 
-        { 
-            console.log('Email provided does not match any record in our database'); 
+    const { bookname, des, state, img,  email} = req.body;
+    // const email = req.body.email;
+    console.log(email)
+    userSchemaModal.find({ Email: email }, (err, bookData) => {
+        if (err) {
+            console.log('Email provided does not match any record in our database');
             res.status(400);
         }
-        else
-        {
-        console.log(bookData[0].Books);
-        bookData[0].Books.push({
-            bookname:bookName,
-            des:BookDes,
-            state:bookState,
-            img:bookImg
-        })
-
+        else {  
+                bookData[0].Books.push({
+                bookname: bookname,
+                des: des,
+                state: state,
+                img: img
+             })
+             console.log(bookData[0].Books)
         bookData[0].save();
-        res.status(200).send(bookData[0].Books);
-    }
+        res.send(bookData[0].Books);
+        console.log(bookData[0].Books)
+        } 
+       
+    // bookData[0].save();
+    
+    // console.log(bookData.Books);
+
 })
+   
 }
 function deleteBook (req, res) {
     console.log(req.query);
     console.log('this is also working !!');
-    const id=Number(req.params.index);
-     userSchemaModal.find({ Email: email }, (err, bookData)=> {
+    const index=Number(req.params.index);
+    const email=req.query.email;
+     userSchemaModal.findOme({ Email: email }, (err, bookData)=> {
         if (err) 
         { 
             console.log('Email provided does not match any record in our database'); 
@@ -154,18 +169,17 @@ function deleteBook (req, res) {
         else
         {
             const newBooks=bookData[0].Books.filter((book,idx)=>{
-                    if(idx !=id)
+                    if(idx !=index)
                     {
                         return book; 
                     }
                     bookData[0].Books=newBooks;
                     bookData[0].save();
-                    res.status(200).send(bookData[0].Books);
+                    res.status(200).send('Successfully deleted');
             } )
         }
 })
 }
-
 app.listen(PORT, () => {
     console.log(`Listening on ${PORT}`);
 })
